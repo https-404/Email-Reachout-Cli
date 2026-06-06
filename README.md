@@ -120,6 +120,16 @@ cp .env.example .env
 ## Development
 
 ```bash
+pip install -e ".[dev]"
 pytest
 python -m jobreach
+```
+
+## Releasing
+
+See [RELEASE.md](RELEASE.md) for version bumps, tagging, GitHub Releases, and optional PyPI publish.
+
+```bash
+make build          # test + build
+make release-check  # validate dist/
 ```
