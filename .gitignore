@@ -1,0 +1,36 @@
+.env
+.venv/
+.jobreach/
+*.pyc
+**/__pycache__/
+**/** __pycache__/
+**/** *.pyc
+**/** *.pyo
+**/** *.pyd
+**/** *.pyw
+**/** *.pyz
+**/** *.pywz
+**/** *.pyzw
+**/** *.pyzwz
+**/** *.pyzwzw
+**/** *.pyzwzwz
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+.venv/
+.jobreach/
+*.egg-info/
+*.egg-info/
+*.egg-info/
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+**/.env.development
+**/.env.test
+**/.env.production
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jobreach"
+version = "0.1.0"
+description = "Local-first CLI for AI-assisted cold job outreach over Gmail."
+requires-python = ">=3.11"
+dependencies = [
+  "typer",
+  "pydantic",
+  "pandas",
+  "rich",
+  "python-dotenv",
+  "pypdf",
+  "python-docx",
+  "email-validator",
+  "jinja2",
+  "langchain",
+  "langchain-core",
+  "langchain-openai",
+  "langchain-google-genai",
+  "langchain-anthropic",
+  "google-api-python-client",
+  "google-auth",
+  "google-auth-oauthlib",
+  "google-auth-httplib2",
+  "pytest",
+]
+
+[project.scripts]
+jobreach = "jobreach.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
