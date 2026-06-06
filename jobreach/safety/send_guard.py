@@ -10,6 +10,7 @@ def can_send_draft(
     already_sent: bool,
     do_not_contact: set[str],
     force: bool = False,
+    require_approved: bool = False,
 ) -> tuple[bool, str]:
     email = str(draft.email).lower()
     try:
@@ -22,6 +23,8 @@ def can_send_draft(
         return False, "already sent"
     if draft.status == "sent" and not force:
         return False, "draft already marked sent"
+    if require_approved and draft.status != "approved" and not force:
+        return False, "draft not approved"
     if draft.risk == "high":
         return False, "high-risk draft"
     if not draft.subject.strip() or not draft.body.strip():

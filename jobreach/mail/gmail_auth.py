@@ -22,7 +22,10 @@ def authenticate_gmail() -> Credentials:
         return creds
     secret_path = google_client_secret_path()
     if not secret_path.exists():
-        raise GmailAuthError(f"Missing Google OAuth client secret: {secret_path}")
+        raise GmailAuthError(
+            f"Missing Google OAuth client secret: {secret_path}\n"
+            "Create a Google OAuth desktop client and place the JSON file there."
+        )
     flow = InstalledAppFlow.from_client_secrets_file(str(secret_path), SCOPES)
     creds = flow.run_local_server(port=0)
     token_path.write_text(creds.to_json(), encoding="utf-8")
@@ -38,6 +41,20 @@ def gmail_connected() -> bool:
         return bool(creds and (creds.valid or creds.refresh_token))
     except Exception:
         return False
+
+
+def get_gmail_email() -> str | None:
+    if not gmail_connected():
+        return None
+    try:
+        creds = authenticate_gmail()
+        from googleapiclient.discovery import build
+
+        service = build("gmail", "v1", credentials=creds, cache_discovery=False)
+        profile = service.users().getProfile(userId="me").execute()
+        return profile.get("emailAddress")
+    except Exception:
+        return None
 
 
 def logout_gmail() -> bool:

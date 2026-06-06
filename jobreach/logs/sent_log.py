@@ -36,3 +36,7 @@ class SentLog:
                     "gmail_message_id": gmail_message_id,
                 }
             )
+
+    def count_sent(self) -> int:
+        rows = self._rows()
+        return len(rows)

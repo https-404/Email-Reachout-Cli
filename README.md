@@ -1,62 +1,85 @@
 # JobReach CLI
 
-`jobreach` is a local-first CLI for generating, reviewing, and sending cold job outreach emails from a CV and a CSV of public company or HR emails.
+JobReach is a local-first interactive CLI for generating, reviewing, and sending cold job outreach emails from your CV and a CSV of public company or HR emails.
 
-## Setup
+## Quick start
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
-cp .env.example .env
+jobreach
 ```
 
-Configure at least one AI provider in `.env`. Gemini is the default:
+Running `jobreach` with no arguments opens the interactive shell:
 
-```env
-GEMINI_API_KEY=
-JOBREACH_AI_PROVIDER=gemini
-JOBREACH_AI_MODEL=gemini-1.5-flash
+```text
+JobReach>
+
+Type "help" for commands.
 ```
+
+On first launch, JobReach walks you through:
+
+1. Choosing an AI provider (OpenAI, Gemini, or Anthropic)
+2. Entering your API key (stored in your OS keychain — not in plain text)
+3. Selecting a default model
+4. Optionally connecting Gmail
+
+No `.env` file is required for normal use.
+
+## Shell commands
+
+```text
+help                Show available commands
+status              Show configuration and local stats
+settings            Open settings menu
+models              Show current provider and model
+change provider     Change AI provider and API key
+change model        Change model for current provider
+generate drafts     Generate outreach drafts from CV and leads
+review drafts       Review and approve drafts
+send emails         Send approved drafts through Gmail
+auth gmail          Connect Gmail
+logout gmail        Disconnect Gmail
+exit / quit         Close JobReach
+```
+
+Aliases: `setup`, `provider`, `model`, `generate`, `drafts`, `review`, `send`, `gmail`
+
+Sending requires typing exactly `SEND` to confirm. Only approved drafts are sent.
 
 ## Gmail OAuth
 
 Create a Google OAuth desktop client with the Gmail send scope, then place the client secret at:
 
 ```text
-.jobreach/credentials/google_client_secret.json
+~/.jobreach/credentials/google_client_secret.json
 ```
 
-Authenticate locally:
+Inside the shell:
 
-```bash
-jobreach auth gmail
+```text
+JobReach> auth gmail
 ```
 
-The app uses Gmail OAuth and the Gmail API. It does not use SMTP and never asks for a Gmail password.
+JobReach uses Gmail OAuth and the Gmail API. It does not use SMTP and never asks for your Gmail password.
 
-## Commands
+## Local data
 
-For the guided form-style flow, run:
-
-```bash
-jobreach start
+```text
+~/.jobreach/
+  config/settings.json
+  config/provider_models_cache.json
+  tokens/gmail_token.json
+  credentials/google_client_secret.json
+  drafts/
+  logs/sent_log.csv
+  profiles/
+  do_not_contact.csv
 ```
 
-It asks for Gmail connection, AI provider/model, CV or profile path, leads CSV, output path, review options, send limit, delay, and final send confirmation.
-
-Manual commands are still available:
-
-```bash
-jobreach models
-jobreach auth status
-jobreach profile --cv resume.pdf --out profile.json
-jobreach generate --profile profile.json --leads leads.csv --out drafts.csv
-jobreach review --drafts drafts.csv
-jobreach send --drafts drafts.csv --confirm --limit 10 --delay-seconds 15
-```
-
-`generate` never sends email. `send` refuses unless `--confirm` is passed. `start` also asks for explicit confirmation before sending.
+If you previously used `./.jobreach` in a project folder, JobReach migrates it to `~/.jobreach` on first shell launch.
 
 ## Leads CSV
 
@@ -67,23 +90,36 @@ email
 hr@example.com
 ```
 
-Optional columns include `company`, `recipient_name`, `website`, `role`, `job_url`, and `notes`.
+Optional columns: `company`, `recipient_name`, `website`, `role`, `job_url`, `notes`
 
-## Local Data
+## Advanced / legacy CLI
 
-Local private data lives under `.jobreach/`:
+Flag-based commands remain available for power users and scripting:
 
-```text
-.jobreach/
-  credentials/
-  tokens/
-  logs/
-  cache/
-  do_not_contact.csv
+```bash
+jobreach generate --cv resume.pdf --leads leads.csv --out drafts.csv
+jobreach review --drafts drafts.csv
+jobreach send --drafts drafts.csv --confirm --approved-only
+jobreach auth gmail
+jobreach start
 ```
 
-`.jobreach/` and `.env` are gitignored.
+Legacy commands read API keys from environment variables. Copy `.env.example` to `.env` if you use them:
+
+```bash
+cp .env.example .env
+```
 
 ## Safety
 
-LLM output is validated with Pydantic. Gmail sending is deterministic code only. High-risk drafts, duplicate sends, do-not-contact emails, and drafts with missing subject/body are skipped.
+- LLM output is validated with Pydantic
+- Gmail sending is deterministic code only
+- High-risk drafts, duplicate sends, do-not-contact emails, and unapproved drafts are skipped in the interactive send flow
+- API keys are stored in the OS keychain, never in settings JSON
+
+## Development
+
+```bash
+pytest
+python -m jobreach
+```

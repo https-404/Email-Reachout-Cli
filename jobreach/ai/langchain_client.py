@@ -10,27 +10,27 @@ from jobreach.core.errors import AIProviderError
 T = TypeVar("T", bound=BaseModel)
 
 
-def _build_chat_model(provider: str, model: str, temperature: float):
+def _build_chat_model(provider: str, model: str, api_key: str, temperature: float):
     if provider == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI
 
-        return ChatGoogleGenerativeAI(model=model, temperature=temperature)
+        return ChatGoogleGenerativeAI(model=model, google_api_key=api_key, temperature=temperature)
     if provider == "openai":
         from langchain_openai import ChatOpenAI
 
-        return ChatOpenAI(model=model, temperature=temperature)
+        return ChatOpenAI(model=model, api_key=api_key, temperature=temperature)
     if provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
 
-        return ChatAnthropic(model=model, temperature=temperature)
+        return ChatAnthropic(model=model, api_key=api_key, temperature=temperature)
     raise AIProviderError(f"Unsupported provider: {provider}")
 
 
 class LangChainAIClient(AIClient):
-    def __init__(self, provider: str, model: str, temperature: float = 0.4):
+    def __init__(self, provider: str, model: str, api_key: str, temperature: float = 0.4):
         self.provider = provider
         self.model_name = model
-        self.model = _build_chat_model(provider, model, temperature)
+        self.model = _build_chat_model(provider, model, api_key, temperature)
 
     def generate_text(self, prompt: str) -> str:
         result = self.model.invoke(prompt)

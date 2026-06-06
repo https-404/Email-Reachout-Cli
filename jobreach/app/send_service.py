@@ -18,10 +18,11 @@ class SendService:
         delay_seconds: int,
         do_not_contact: set[str],
         force: bool = False,
+        require_approved: bool = False,
     ) -> list[SendResult]:
         if not confirm:
             return [
-                SendResult(draft_id=draft.id, email=draft.email, status="skipped", reason="missing --confirm")
+                SendResult(draft_id=draft.id, email=draft.email, status="skipped", reason="missing confirmation")
                 for draft in drafts[: limit or None]
             ]
 
@@ -31,7 +32,13 @@ class SendService:
             if limit is not None and sent_count >= limit:
                 break
             already_sent = self.sent_log.has_been_sent(str(draft.email), draft.subject)
-            allowed, reason = can_send_draft(draft, already_sent, do_not_contact, force)
+            allowed, reason = can_send_draft(
+                draft,
+                already_sent,
+                do_not_contact,
+                force=force,
+                require_approved=require_approved,
+            )
             if not allowed:
                 draft.status = "skipped"
                 results.append(SendResult(draft_id=draft.id, email=draft.email, status="skipped", reason=reason))

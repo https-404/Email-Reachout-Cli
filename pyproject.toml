@@ -13,6 +13,9 @@ dependencies = [
   "pandas",
   "rich",
   "python-dotenv",
+  "keyring",
+  "prompt_toolkit",
+  "InquirerPy",
   "pypdf",
   "python-docx",
   "email-validator",
@@ -26,6 +29,9 @@ dependencies = [
   "google-auth",
   "google-auth-oauthlib",
   "google-auth-httplib2",
+  "google-generativeai",
+  "openai",
+  "anthropic",
   "pytest",
 ]
 

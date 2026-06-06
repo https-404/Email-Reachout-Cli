@@ -1,3 +1,4 @@
+import sys
 import traceback
 from typing import Optional
 
@@ -63,6 +64,7 @@ def _send_loaded_drafts(
     delay_seconds: int,
     do_not_contact_file: str | None,
     force: bool,
+    require_approved: bool = False,
 ):
     if not gmail_token_path().exists():
         raise JobReachError("Gmail is not connected. Run: jobreach auth gmail")
@@ -70,7 +72,15 @@ def _send_loaded_drafts(
     blocked_path = do_not_contact_file or str(do_not_contact_path())
     blocked = load_do_not_contact(blocked_path)
     service = SendService(GmailClient(creds), SentLog())
-    results = service.send_drafts(draft_rows, True, limit, delay_seconds, blocked, force)
+    results = service.send_drafts(
+        draft_rows,
+        True,
+        limit,
+        delay_seconds,
+        blocked,
+        force,
+        require_approved=require_approved,
+    )
     save_drafts(drafts_path, draft_rows)
     sent = sum(1 for result in results if result.status == "sent")
     skipped = sum(1 for result in results if result.status == "skipped")
@@ -244,6 +254,7 @@ def send(
     limit: Optional[int] = typer.Option(None, "--limit"),
     delay_seconds: int = typer.Option(get_default_delay_seconds(), "--delay-seconds"),
     force: bool = typer.Option(False, "--force"),
+    approved_only: bool = typer.Option(False, "--approved-only"),
     do_not_contact: Optional[str] = typer.Option(None, "--do-not-contact"),
     debug: bool = typer.Option(False, "--debug"),
 ):
@@ -252,7 +263,15 @@ def send(
         if not confirm:
             console.print("[yellow]Refusing to send without --confirm.[/yellow]")
             return
-        _send_loaded_drafts(draft_rows, drafts, limit, delay_seconds, do_not_contact, force)
+        _send_loaded_drafts(
+            draft_rows,
+            drafts,
+            limit,
+            delay_seconds,
+            do_not_contact,
+            force,
+            require_approved=approved_only,
+        )
     except Exception as exc:
         _handle_error(exc, debug)
 
@@ -269,7 +288,12 @@ def leads_preview(leads: str = typer.Option(..., "--leads"), limit: int = typer.
 
 
 def main():
-    app()
+    if len(sys.argv) == 1:
+        from jobreach.shell.app import JobReachShell
+
+        JobReachShell().run()
+    else:
+        app()
 
 
 if __name__ == "__main__":
