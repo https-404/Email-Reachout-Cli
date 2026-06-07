@@ -1,4 +1,4 @@
-from jobreach.app.auth_service import AuthService
+from jobreach.app.auth_service import connect_gmail
 from jobreach.app.provider_setup_service import ProviderSetupService
 from jobreach.config.secrets import SecretStore
 from jobreach.config.settings import SettingsStore
@@ -33,14 +33,11 @@ class OnboardingService:
             return
 
         if confirm("Would you like to connect Gmail now so JobReach can send emails?", default=False):
-            console.print("\nOpening browser for Google sign-in...")
             try:
-                AuthService().gmail()
-                self.settings_store.update(gmail_connected_hint=True)
-                console.print("[green]Gmail connected successfully.[/green]")
+                connect_gmail(self.settings_store)
             except Exception as exc:
                 console.print(f"[yellow]Gmail connection failed: {exc}[/yellow]")
-                console.print("You can connect later with: auth gmail")
+                console.print('You can connect later with: auth gmail')
 
         self.settings_store.update(first_run_complete=True)
         console.print("\n[green]Setup complete.[/green]")

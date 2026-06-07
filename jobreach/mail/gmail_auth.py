@@ -1,3 +1,5 @@
+from typing import Literal
+
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -6,9 +8,48 @@ from jobreach.config.paths import ensure_data_dirs, gmail_token_path, google_cli
 from jobreach.core.errors import GmailAuthError
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+GmailAuthMethod = Literal["browser", "manual"]
 
 
-def authenticate_gmail() -> Credentials:
+def _load_client_secret_flow() -> InstalledAppFlow:
+    secret_path = google_client_secret_path()
+    if not secret_path.exists():
+        raise GmailAuthError(
+            f"Missing Google OAuth client secret: {secret_path}\n"
+            "Create a Google OAuth desktop client and place the JSON file there."
+        )
+    return InstalledAppFlow.from_client_secrets_file(str(secret_path), SCOPES)
+
+
+def _save_credentials(creds: Credentials, token_path) -> Credentials:
+    token_path.write_text(creds.to_json(), encoding="utf-8")
+    return creds
+
+
+def authenticate_gmail_browser() -> Credentials:
+    flow = _load_client_secret_flow()
+    creds = flow.run_local_server(port=0, open_browser=True)
+    return _save_credentials(creds, gmail_token_path())
+
+
+def start_manual_gmail_flow() -> tuple[InstalledAppFlow, str]:
+    flow = _load_client_secret_flow()
+    auth_url, _ = flow.authorization_url(
+        prompt="consent",
+        access_type="offline",
+        include_granted_scopes="true",
+    )
+    return flow, auth_url
+
+
+def complete_manual_gmail_flow(flow: InstalledAppFlow, code: str) -> Credentials:
+    flow.fetch_token(code=code)
+    if not flow.credentials:
+        raise GmailAuthError("Google did not return credentials. Check the code and try again.")
+    return _save_credentials(flow.credentials, gmail_token_path())
+
+
+def authenticate_gmail(method: GmailAuthMethod = "browser", code: str | None = None) -> Credentials:
     ensure_data_dirs()
     token_path = gmail_token_path()
     creds = None
@@ -18,18 +59,14 @@ def authenticate_gmail() -> Credentials:
         return creds
     if creds and creds.expired and creds.refresh_token:
         creds.refresh(Request())
-        token_path.write_text(creds.to_json(), encoding="utf-8")
-        return creds
-    secret_path = google_client_secret_path()
-    if not secret_path.exists():
+        return _save_credentials(creds, token_path)
+
+    if method == "manual":
         raise GmailAuthError(
-            f"Missing Google OAuth client secret: {secret_path}\n"
-            "Create a Google OAuth desktop client and place the JSON file there."
+            "Manual Gmail sign-in requires an active OAuth flow. Use connect_gmail() from the shell."
         )
-    flow = InstalledAppFlow.from_client_secrets_file(str(secret_path), SCOPES)
-    creds = flow.run_local_server(port=0)
-    token_path.write_text(creds.to_json(), encoding="utf-8")
-    return creds
+
+    return authenticate_gmail_browser()
 
 
 def gmail_connected() -> bool:

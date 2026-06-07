@@ -63,6 +63,19 @@ Inside the shell:
 JobReach> auth gmail
 ```
 
+You can choose:
+
+1. **Open browser** — automatic sign-in (default)
+2. **Copy link + paste code** — use this if the browser does not open (remote SSH, restricted terminals, etc.)
+
+From settings you can also type option names instead of numbers:
+
+```text
+JobReach> settings
+Choose an option: gmail
+Choose an option: manual
+```
+
 JobReach uses Gmail OAuth and the Gmail API. It does not use SMTP and never asks for your Gmail password.
 
 ## Local data

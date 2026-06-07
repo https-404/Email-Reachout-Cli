@@ -1,5 +1,5 @@
 from jobreach.ai.provider_registry import PROVIDERS, get_provider
-from jobreach.app.auth_service import AuthService
+from jobreach.app.auth_service import AuthService, connect_gmail
 from jobreach.app.generation_flow import run_shell_generation
 from jobreach.app.provider_setup_service import ProviderSetupService
 from jobreach.app.review_service import interactive_review
@@ -21,6 +21,7 @@ from jobreach.shell.render import print_help, print_models_menu, print_status
 
 ALIASES = {
     "setup": "settings",
+    "setting": "settings",
     "provider": "change provider",
     "model": "change model",
     "generate": "generate drafts",
@@ -306,20 +307,7 @@ def handle_send_emails(ctx: ShellContext) -> None:
 
 def handle_auth_gmail(settings_store: SettingsStore | None = None) -> None:
     store = settings_store or SettingsStore()
-    console.print(
-        "\nJobReach uses Gmail OAuth to send from your account.\n"
-        "It does not ask for your Gmail password.\n"
-        f"It stores a local OAuth token at {data_dir() / 'tokens' / 'gmail_token.json'}.\n"
-    )
-    if not confirm("Continue?", default=False):
-        return
-    console.print("\nOpening browser for Google sign-in...")
-    AuthService().gmail()
-    store.update(gmail_connected_hint=True)
-    email = get_gmail_email()
-    console.print("[green]Gmail connected successfully.[/green]")
-    if email:
-        console.print(f"Signed in as: {email}")
+    connect_gmail(store)
 
 
 def handle_logout_gmail(settings_store: SettingsStore | None = None) -> None:

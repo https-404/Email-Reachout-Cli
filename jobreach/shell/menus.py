@@ -1,10 +1,64 @@
-from jobreach.app.auth_service import AuthService
-from jobreach.app.onboarding_service import OnboardingService
+from jobreach.app.auth_service import AuthService, connect_gmail
 from jobreach.app.provider_setup_service import ProviderSetupService
-from jobreach.config.paths import data_dir, do_not_contact_path, ensure_data_dirs
+from jobreach.config.paths import data_dir
 from jobreach.config.secrets import SecretStore
 from jobreach.config.settings import SettingsStore
-from jobreach.shell.prompts import choose_number, confirm, console, prompt_text
+from jobreach.shell.prompts import choose_menu_option, confirm, console, prompt_text
+
+SETTINGS_ALIASES = {
+    "1": 1,
+    "provider": 1,
+    "change provider": 1,
+    "2": 2,
+    "model": 2,
+    "change model": 2,
+    "3": 3,
+    "api key": 3,
+    "update api key": 3,
+    "key": 3,
+    "4": 4,
+    "temperature": 4,
+    "5": 5,
+    "gmail": 5,
+    "auth gmail": 5,
+    "connect gmail": 5,
+    "email": 5,
+    "6": 6,
+    "delay": 6,
+    "send delay": 6,
+    "7": 7,
+    "data": 7,
+    "data directory": 7,
+    "8": 8,
+    "storage": 8,
+    "9": 9,
+    "reset": 9,
+    "10": 10,
+    "back": 10,
+    "exit": 10,
+    "quit": 10,
+    "cancel": 10,
+}
+
+GMAIL_ALIASES = {
+    "1": 1,
+    "connect": 1,
+    "browser": 1,
+    "auth": 1,
+    "auth gmail": 1,
+    "2": 2,
+    "manual": 2,
+    "code": 2,
+    "link": 2,
+    "paste": 2,
+    "3": 3,
+    "disconnect": 3,
+    "logout": 3,
+    "logout gmail": 3,
+    "4": 4,
+    "back": 4,
+    "cancel": 4,
+}
 
 
 def run_settings_menu(
@@ -12,6 +66,7 @@ def run_settings_menu(
     secret_store: SecretStore,
     provider_setup: ProviderSetupService,
 ) -> None:
+    menu_hint = "Enter a number or name (e.g. 'gmail', 'provider', 'back')."
     while True:
         settings = settings_store.load()
         provider_label = settings.default_provider or "Not set"
@@ -33,8 +88,8 @@ def run_settings_menu(
         console.print("9. Reset first-run setup")
         console.print("10. Back\n")
 
-        choice = choose_number("Choose an option", 10)
-        if not choice or choice == 10:
+        choice = choose_menu_option("Choose an option", 10, SETTINGS_ALIASES, menu_hint)
+        if choice is None or choice == 10:
             return
         if choice == 1:
             provider_setup.setup_provider(allow_back=True)
@@ -69,27 +124,22 @@ def run_settings_menu(
 
 
 def _gmail_settings_menu(settings_store: SettingsStore) -> None:
-    from jobreach.app.auth_service import AuthService
-    from jobreach.mail.gmail_auth import get_gmail_email
+    menu_hint = "Enter a number or name (e.g. 'connect', 'manual', 'back')."
+    while True:
+        console.print("\n[bold]Gmail[/bold]\n")
+        console.print("1. Connect Gmail (open browser)")
+        console.print("2. Connect Gmail (copy link + paste code)")
+        console.print("3. Disconnect Gmail")
+        console.print("4. Back\n")
 
-    console.print("\n1. Connect Gmail")
-    console.print("2. Disconnect Gmail")
-    console.print("3. Back\n")
-    choice = choose_number("Choose an option", 3)
-    if choice == 1:
-        console.print(
-            "\nJobReach uses Gmail OAuth to send from your account.\n"
-            "It does not ask for your Gmail password.\n"
-        )
-        if confirm("Continue?", default=False):
-            console.print("\nOpening browser for Google sign-in...")
-            AuthService().gmail()
-            settings_store.update(gmail_connected_hint=True)
-            email = get_gmail_email()
-            console.print("[green]Gmail connected successfully.[/green]")
-            if email:
-                console.print(f"Signed in as: {email}")
-    elif choice == 2:
-        removed = AuthService().logout()
-        settings_store.update(gmail_connected_hint=False)
-        console.print("Gmail disconnected." if removed else "No Gmail token found.")
+        choice = choose_menu_option("Choose an option", 4, GMAIL_ALIASES, menu_hint)
+        if choice is None or choice == 4:
+            return
+        if choice == 1:
+            connect_gmail(settings_store, method="browser")
+        elif choice == 2:
+            connect_gmail(settings_store, method="manual")
+        elif choice == 3:
+            removed = AuthService().logout()
+            settings_store.update(gmail_connected_hint=False)
+            console.print("Gmail disconnected." if removed else "No Gmail token found.")
