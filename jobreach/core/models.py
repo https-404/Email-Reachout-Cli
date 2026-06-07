@@ -40,11 +40,17 @@ class EmailDraft(BaseModel):
     personalization_score: int = 0
     risk: Literal["low", "medium", "high"] = "medium"
     warnings: list[str] = Field(default_factory=list)
-    status: Literal["draft", "approved", "sent", "skipped", "failed"] = "draft"
+    status: Literal["draft", "approved", "sent", "skipped", "failed", "queued"] = "draft"
     sent_at: Optional[str] = None
     error: Optional[str] = None
     provider: Optional[str] = None
     model: Optional[str] = None
+    alt_subject: Optional[str] = None
+    edited_at: Optional[str] = None
+    quality_reason: Optional[str] = None
+    follow_up_of: Optional[str] = None
+    reply_status: Literal["none", "replied", "no_reply"] = "none"
+    scheduled_at: Optional[str] = None
 
 
 class SendResult(BaseModel):

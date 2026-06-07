@@ -29,9 +29,14 @@ def confirm(message: str, default: bool = False) -> bool:
     return raw.lower() in {"y", "yes"}
 
 
-def confirm_send() -> bool:
-    raw = prompt_text("Type SEND to confirm")
-    return raw == "SEND"
+def prompt_path(message: str, default: str = "") -> str:
+    raw = prompt_text(message, default=default)
+    return raw
+
+
+def confirm_send_high_risk() -> bool:
+    raw = prompt_text("Type SEND HIGH RISK to confirm")
+    return raw == "SEND HIGH RISK"
 
 
 def choose_number(message: str, max_option: int) -> int | None:

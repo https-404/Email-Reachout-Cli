@@ -10,6 +10,7 @@ CandidateProfileSchema = CandidateProfile
 class GeneratedEmailSchema(BaseModel):
     subject: str
     body: str
+    alt_subject: str | None = None
 
 
 class QualityEvaluationSchema(BaseModel):

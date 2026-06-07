@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -17,10 +17,27 @@ class DraftBatch:
     sent: int
     provider: str
     model: str
+    last_review_index: int = 0
+    campaign_id: str | None = None
 
 
 def _index_path() -> Path:
     return drafts_index_path()
+
+
+def _batch_from_dict(entry: dict) -> DraftBatch:
+    return DraftBatch(
+        id=entry["id"],
+        path=entry["path"],
+        created_at=entry["created_at"],
+        count=entry.get("count", 0),
+        approved=entry.get("approved", 0),
+        sent=entry.get("sent", 0),
+        provider=entry.get("provider", ""),
+        model=entry.get("model", ""),
+        last_review_index=entry.get("last_review_index", 0),
+        campaign_id=entry.get("campaign_id"),
+    )
 
 
 def list_batches() -> list[DraftBatch]:
@@ -28,7 +45,7 @@ def list_batches() -> list[DraftBatch]:
     if not path.exists():
         return []
     raw = read_json(path)
-    return [DraftBatch(**entry) for entry in raw]
+    return [_batch_from_dict(entry) for entry in raw]
 
 
 def add_batch(
@@ -37,6 +54,7 @@ def add_batch(
     count: int,
     provider: str,
     model: str,
+    campaign_id: str | None = None,
 ) -> DraftBatch:
     batches = list_batches()
     batch = DraftBatch(
@@ -48,6 +66,7 @@ def add_batch(
         sent=0,
         provider=provider,
         model=model,
+        campaign_id=campaign_id,
     )
     batches.insert(0, batch)
     write_json(_index_path(), [batch.__dict__ for batch in batches])
@@ -58,12 +77,23 @@ def update_batch_stats(batch_id: str) -> None:
     batches = list_batches()
     updated: list[dict] = []
     for batch in batches:
-        data = batch.__dict__
+        data = batch.__dict__.copy()
         if batch.id == batch_id:
             drafts = load_drafts(batch.path)
             data["count"] = len(drafts)
             data["approved"] = sum(1 for draft in drafts if draft.status == "approved")
             data["sent"] = sum(1 for draft in drafts if draft.status == "sent")
+        updated.append(data)
+    write_json(_index_path(), updated)
+
+
+def update_batch_review_index(batch_id: str, index: int) -> None:
+    batches = list_batches()
+    updated: list[dict] = []
+    for batch in batches:
+        data = batch.__dict__.copy()
+        if batch.id == batch_id:
+            data["last_review_index"] = index
         updated.append(data)
     write_json(_index_path(), updated)
 

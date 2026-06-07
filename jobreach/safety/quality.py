@@ -64,4 +64,8 @@ def check_email_quality(draft: EmailDraft, profile: CandidateProfile, lead: Lead
     draft.warnings = warnings
     draft.personalization_score = max(1, min(10, score))
     draft.risk = "high" if serious else "medium" if warnings else "low"
+    if warnings:
+        draft.quality_reason = f"Score {draft.personalization_score}/10 — {', '.join(warnings)}"
+    else:
+        draft.quality_reason = f"Score {draft.personalization_score}/10 — looks good"
     return draft

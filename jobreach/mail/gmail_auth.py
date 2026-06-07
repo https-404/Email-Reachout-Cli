@@ -4,20 +4,16 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-from jobreach.config.paths import ensure_data_dirs, gmail_token_path, google_client_secret_path
+from jobreach.config.paths import ensure_data_dirs, gmail_token_path
 from jobreach.core.errors import GmailAuthError
+from jobreach.mail.credentials_bootstrap import ensure_oauth_client_secret
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 GmailAuthMethod = Literal["browser", "manual"]
 
 
 def _load_client_secret_flow() -> InstalledAppFlow:
-    secret_path = google_client_secret_path()
-    if not secret_path.exists():
-        raise GmailAuthError(
-            f"Missing Google OAuth client secret: {secret_path}\n"
-            "Create a Google OAuth desktop client and place the JSON file there."
-        )
+    secret_path = ensure_oauth_client_secret()
     return InstalledAppFlow.from_client_secrets_file(str(secret_path), SCOPES)
 
 

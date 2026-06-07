@@ -20,7 +20,14 @@ Rules:
 - Keep the body under 140 words.
 - Use a confident, polite, non-desperate tone.
 - End with a soft call to action.
-- Return structured output with subject and body.
+- Return structured output with subject, body, and optional alt_subject (alternate subject line).
+
+Tone guidance:
+{{ tone_instruction }}
+
+Role context: {{ role }}
+Job URL: {{ job_url }}
+Notes: {{ notes }}
 
 Candidate profile:
 {{ profile_json }}

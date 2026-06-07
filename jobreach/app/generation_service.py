@@ -17,12 +17,13 @@ class GenerationService:
         profile: CandidateProfile,
         leads: list[Lead],
         ai_quality_check: bool = False,
+        tone_preset: str = "default",
     ) -> list[EmailDraft]:
         drafts: list[EmailDraft] = []
         evaluator = AIQualityEvaluator(self.review_client or self.ai_client) if ai_quality_check else None
         for lead in leads:
             try:
-                generated = generate_email(self.ai_client, profile, lead)
+                generated = generate_email(self.ai_client, profile, lead, tone_preset=tone_preset)
                 draft = EmailDraft(
                     id=str(uuid.uuid4()),
                     email=lead.email,
@@ -31,6 +32,7 @@ class GenerationService:
                     recipient_type=lead.recipient_type or "unknown",
                     subject=generated.subject,
                     body=generated.body,
+                    alt_subject=generated.alt_subject,
                     provider=self.ai_client.provider,
                     model=self.ai_client.model_name,
                 )
@@ -40,6 +42,7 @@ class GenerationService:
                     draft.personalization_score = evaluation.personalization_score
                     draft.risk = evaluation.risk
                     draft.warnings = evaluation.warnings
+                    draft.quality_reason = evaluation.reason
                 drafts.append(draft)
             except Exception as exc:
                 drafts.append(
@@ -60,3 +63,13 @@ class GenerationService:
                     )
                 )
         return drafts
+
+    def regenerate_draft(
+        self,
+        profile: CandidateProfile,
+        lead: Lead,
+        tone_preset: str = "default",
+        ai_quality_check: bool = False,
+    ) -> EmailDraft:
+        drafts = self.generate_drafts(profile, [lead], ai_quality_check=ai_quality_check, tone_preset=tone_preset)
+        return drafts[0]

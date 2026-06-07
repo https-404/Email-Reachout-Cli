@@ -20,6 +20,20 @@ class AppSettings(BaseModel):
     default_output_dir: str = "~/.jobreach/drafts"
     first_run_complete: bool = False
     gmail_connected_hint: bool = False
+    last_cv_path: Optional[str] = None
+    last_leads_path: Optional[str] = None
+    tone_preset: str = "default"
+    review_model: Optional[str] = None
+    generate_model: Optional[str] = None
+    ai_quality_check: bool = True
+    daily_send_cap: int = 50
+    send_window_start: str = "09:00"
+    send_window_end: str = "17:00"
+    follow_up_days: int = 7
+    enrichment_enabled: bool = False
+    enable_provider_fallback: bool = False
+    fallback_provider: Optional[str] = None
+    fallback_model: Optional[str] = None
 
 
 class SettingsStore:

@@ -77,6 +77,22 @@ def do_not_contact_path() -> Path:
     return data_dir() / "do_not_contact.csv"
 
 
+def crm_dir() -> Path:
+    return data_dir() / "crm"
+
+
+def crm_db_path() -> Path:
+    return crm_dir() / "jobreach.db"
+
+
+def exports_dir() -> Path:
+    return data_dir() / "exports"
+
+
+def enrichment_cache_dir() -> Path:
+    return data_dir() / "cache" / "enrichment"
+
+
 def legacy_data_dir() -> Path:
     return Path.cwd() / ".jobreach"
 
@@ -89,6 +105,9 @@ def ensure_data_dirs() -> None:
         drafts_dir(),
         profiles_dir(),
         logs_dir(),
+        crm_dir(),
+        exports_dir(),
+        enrichment_cache_dir(),
         data_dir() / "cache" / "profiles",
         data_dir() / "cache" / "generations",
     ):
@@ -96,7 +115,6 @@ def ensure_data_dirs() -> None:
 
 
 def migrate_legacy_data_dir() -> bool:
-    """Copy ./.jobreach to ~/.jobreach if legacy exists and home dir is empty."""
     legacy = legacy_data_dir()
     target = DEFAULT_DATA_DIR
     if not legacy.exists() or not legacy.is_dir():
