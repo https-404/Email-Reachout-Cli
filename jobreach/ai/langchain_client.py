@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from typing import Type, TypeVar
 
@@ -23,6 +24,42 @@ def _build_chat_model(provider: str, model: str, api_key: str, temperature: floa
         from langchain_anthropic import ChatAnthropic
 
         return ChatAnthropic(model=model, api_key=api_key, temperature=temperature)
+    if provider == "openrouter":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            model=model,
+            api_key=api_key,
+            temperature=temperature,
+            base_url="https://openrouter.ai/api/v1",
+        )
+    if provider == "groq":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            model=model,
+            api_key=api_key,
+            temperature=temperature,
+            base_url="https://api.groq.com/openai/v1",
+        )
+    if provider == "deepseek":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            model=model,
+            api_key=api_key,
+            temperature=temperature,
+            base_url="https://api.deepseek.com/v1",
+        )
+    if provider == "ollama":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            model=model,
+            api_key=api_key or "ollama",
+            temperature=temperature,
+            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
+        )
     raise AIProviderError(f"Unsupported provider: {provider}")
 
 

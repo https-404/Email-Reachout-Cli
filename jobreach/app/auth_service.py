@@ -25,12 +25,18 @@ def choose_gmail_auth_method() -> GmailAuthMethod | None:
 
 
 def connect_gmail(settings_store: SettingsStore, method: GmailAuthMethod | None = None) -> bool:
+    from jobreach.mail.credentials_bootstrap import ensure_oauth_client_secret
+
     console.print(
         "\nJobReach uses Gmail OAuth to send from your account.\n"
         "It does not ask for your Gmail password.\n"
-        "You need a Google OAuth desktop client secret at:\n"
-        "~/.jobreach/credentials/google_client_secret.json\n"
+        "Sign in with Google when prompted.\n"
     )
+    try:
+        ensure_oauth_client_secret()
+    except Exception as exc:
+        console.print(f"[red]{exc}[/red]")
+        return False
     if not confirm("Continue?", default=False):
         return False
 

@@ -1,0 +1,4 @@
+Demo Candidate
+Python, FastAPI, React
+Target roles: Software Engineer, Backend Developer
+Built CLI tools and outreach automation demos.

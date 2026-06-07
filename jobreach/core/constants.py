@@ -1,4 +1,4 @@
-SUPPORTED_AI_PROVIDERS = ("gemini", "openai", "anthropic")
+SUPPORTED_AI_PROVIDERS = ("gemini", "openai", "anthropic", "openrouter", "groq", "deepseek", "ollama")
 
 RECIPIENT_INSTRUCTIONS = {
     "hr": "Ask whether there are relevant roles or openings for the candidate's target roles.",

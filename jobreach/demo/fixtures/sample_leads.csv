@@ -1,0 +1,6 @@
+email,company,role,website,notes
+hr@acme.example.com,Acme Corp,Software Engineer,https://acme.example.com,Series B startup
+founder@beta.example.com,Beta Labs,Founding Engineer,,Looking for full-stack
+recruiting@gamma.example.com,Gamma Inc,Backend Developer,,
+contact@delta.example.com,Delta Co,,,
+info@epsilon.example.com,Epsilon LLC,Platform Engineer,https://epsilon.example.com,Remote-first

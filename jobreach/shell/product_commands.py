@@ -147,6 +147,8 @@ PRODUCT_ALIASES = {
     "dnc remove": "dnc remove",
     "export campaign": "export campaign",
     "send queue status": "send queue status",
+    "send queue run": "send queue run",
+    "send queue": "send queue status",
 }
 
 PRODUCT_COMMANDS = {

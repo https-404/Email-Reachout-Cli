@@ -34,6 +34,11 @@ def prompt_path(message: str, default: str = "") -> str:
     return raw
 
 
+def confirm_send() -> bool:
+    raw = prompt_text("Type SEND to confirm")
+    return raw == "SEND"
+
+
 def confirm_send_high_risk() -> bool:
     raw = prompt_text("Type SEND HIGH RISK to confirm")
     return raw == "SEND HIGH RISK"

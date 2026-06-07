@@ -39,6 +39,42 @@ PROVIDERS: dict[str, ProviderInfo] = {
         recommended_models=["claude-3-5-haiku-latest", "claude-3-5-sonnet-latest"],
         default_model="claude-3-5-haiku-latest",
     ),
+    "openrouter": ProviderInfo(
+        id="openrouter",
+        display_name="OpenRouter",
+        api_key_label="OpenRouter API key",
+        api_key_help_url="https://openrouter.ai/keys",
+        supports_model_listing=False,
+        recommended_models=["openai/gpt-4o-mini", "anthropic/claude-3.5-haiku"],
+        default_model="openai/gpt-4o-mini",
+    ),
+    "groq": ProviderInfo(
+        id="groq",
+        display_name="Groq",
+        api_key_label="Groq API key",
+        api_key_help_url="https://console.groq.com/keys",
+        supports_model_listing=False,
+        recommended_models=["llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
+        default_model="llama-3.3-70b-versatile",
+    ),
+    "deepseek": ProviderInfo(
+        id="deepseek",
+        display_name="DeepSeek",
+        api_key_label="DeepSeek API key",
+        api_key_help_url="https://platform.deepseek.com/api_keys",
+        supports_model_listing=False,
+        recommended_models=["deepseek-chat"],
+        default_model="deepseek-chat",
+    ),
+    "ollama": ProviderInfo(
+        id="ollama",
+        display_name="Ollama (local)",
+        api_key_label="Ollama API key (optional)",
+        api_key_help_url="https://ollama.com",
+        supports_model_listing=False,
+        recommended_models=["llama3.2", "mistral"],
+        default_model="llama3.2",
+    ),
 }
 
 

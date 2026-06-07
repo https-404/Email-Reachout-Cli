@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jobreach"
-version = "0.1.0"
+version = "1.0.0"
 description = "Local-first CLI for AI-assisted cold job outreach over Gmail."
 readme = "README.md"
 license = "MIT"
@@ -64,6 +64,9 @@ Issues = "https://github.com/https-404/Email-Reachout-Cli/issues"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["jobreach*"]
+
+[tool.setuptools.package-data]
+jobreach = ["credentials/*.json", "demo/fixtures/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

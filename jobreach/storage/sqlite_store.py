@@ -153,6 +153,11 @@ class SQLiteStore:
             ).fetchall()
         return [dict(row) for row in rows]
 
+    def list_replied_emails(self) -> list[str]:
+        with self._connect() as conn:
+            rows = conn.execute("SELECT email FROM contacts WHERE reply_status='replied'").fetchall()
+        return [row["email"] for row in rows]
+
     def mark_queue_sent(self, queue_id: str) -> None:
         with self._connect() as conn:
             conn.execute("UPDATE send_queue SET status='sent' WHERE id=?", (queue_id,))

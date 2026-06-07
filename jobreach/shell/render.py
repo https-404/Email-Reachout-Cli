@@ -17,9 +17,20 @@ settings            Open settings menu
 models              Show current provider and model
 change provider     Change AI provider and API key
 change model        Change model for current provider
+change tone         Set email tone preset
+preview leads       Preview and validate a leads CSV
 generate drafts     Generate outreach drafts from CV and leads
-review drafts       Review generated drafts
-send emails         Send reviewed drafts through Gmail
+review drafts       Review, edit, and approve drafts
+send emails         Send approved drafts (dry-run / queue supported)
+send queue status   Show queued sends
+send queue run      Process due queued sends
+campaigns           List campaigns
+new campaign        Create a campaign
+follow up           Generate follow-up batch for no-reply contacts
+mark replied <email> Mark a contact as replied
+dnc list / add / remove  Manage do-not-contact list
+export campaign     Export HTML/Markdown campaign report
+demo                Try JobReach with sample data (no API keys)
 auth gmail          Connect Gmail
 logout gmail        Disconnect Gmail
 debug on            Show stack traces on errors
@@ -59,10 +70,12 @@ def print_status(
     drafts_count: int,
     sent_count: int,
     dnc_count: int,
+    tone_preset: str = "default",
 ) -> None:
     console.print("\n[bold]JobReach Status[/bold]\n")
     console.print(f"AI Provider: {provider}")
     console.print(f"AI Model: {model}")
+    console.print(f"Tone preset: {tone_preset}")
     console.print(f"API Key: {api_key_status}")
     console.print(f"Gmail: {gmail_status}")
     console.print(f"Data Directory: {data_dir}")

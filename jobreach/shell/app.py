@@ -11,7 +11,8 @@ from jobreach.logs.sent_log import SentLog
 from jobreach.mail.gmail_auth import get_gmail_email, gmail_connected
 from jobreach.ai.provider_registry import get_provider
 from jobreach.drafts.index import list_batches
-from jobreach.shell.commands import COMMANDS, ShellContext, resolve_command
+from jobreach.shell.commands import COMMANDS, ShellContext, dispatch_command, resolve_command
+from jobreach.shell.product_commands import bootstrap_oauth
 from jobreach.shell.render import print_startup_banner
 
 
@@ -20,7 +21,7 @@ class JobReachShell:
         self.ctx = ShellContext()
         self.session = PromptSession(
             history=InMemoryHistory(),
-            completer=WordCompleter(sorted(set(COMMANDS.keys()) | set(["quit", "exit"]))),
+            completer=WordCompleter(sorted(set(COMMANDS.keys()) | set(["quit", "exit", "demo", "leads"]))),
         )
 
     def run(self) -> None:
@@ -28,6 +29,8 @@ class JobReachShell:
             print(
                 "Migrated local data from ./.jobreach to ~/.jobreach.\n"
             )
+
+        bootstrap_oauth()
 
         onboarding = OnboardingService(self.ctx.settings_store, self.ctx.secret_store)
         if onboarding.needs_onboarding():
@@ -50,12 +53,12 @@ class JobReachShell:
                 return
 
             handler = COMMANDS.get(command)
-            if not handler:
+            if not handler and not command.startswith("mark replied"):
                 print(f'Unknown command: {raw.strip()}. Type "help" for commands.')
                 continue
 
             try:
-                handler(self.ctx)
+                dispatch_command(self.ctx, command)
             except JobReachError as exc:
                 print(f"Error: {exc}")
             except Exception as exc:

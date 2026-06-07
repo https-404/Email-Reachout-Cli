@@ -19,6 +19,9 @@ class SendService:
         do_not_contact: set[str],
         force: bool = False,
         require_approved: bool = False,
+        dry_run: bool = False,
+        allow_high_risk: bool = False,
+        on_sent=None,
     ) -> list[SendResult]:
         if not confirm:
             return [
@@ -38,10 +41,15 @@ class SendService:
                 do_not_contact,
                 force=force,
                 require_approved=require_approved,
+                allow_high_risk=allow_high_risk,
             )
             if not allowed:
                 draft.status = "skipped"
                 results.append(SendResult(draft_id=draft.id, email=draft.email, status="skipped", reason=reason))
+                continue
+            if dry_run:
+                results.append(SendResult(draft_id=draft.id, email=draft.email, status="sent", reason="dry-run"))
+                sent_count += 1
                 continue
             try:
                 message_id = self.gmail_client.send_email(str(draft.email), draft.subject, draft.body)
@@ -49,6 +57,8 @@ class SendService:
                 draft.status = "sent"
                 draft.sent_at = utc_now_iso()
                 sent_count += 1
+                if on_sent:
+                    on_sent(draft, message_id)
                 results.append(
                     SendResult(
                         draft_id=draft.id,

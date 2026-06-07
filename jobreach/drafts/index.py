@@ -19,6 +19,7 @@ class DraftBatch:
     model: str
     last_review_index: int = 0
     campaign_id: str | None = None
+    profile_path: str | None = None
 
 
 def _index_path() -> Path:
@@ -37,6 +38,7 @@ def _batch_from_dict(entry: dict) -> DraftBatch:
         model=entry.get("model", ""),
         last_review_index=entry.get("last_review_index", 0),
         campaign_id=entry.get("campaign_id"),
+        profile_path=entry.get("profile_path"),
     )
 
 
@@ -55,6 +57,7 @@ def add_batch(
     provider: str,
     model: str,
     campaign_id: str | None = None,
+    profile_path: str | None = None,
 ) -> DraftBatch:
     batches = list_batches()
     batch = DraftBatch(
@@ -67,6 +70,7 @@ def add_batch(
         provider=provider,
         model=model,
         campaign_id=campaign_id,
+        profile_path=profile_path,
     )
     batches.insert(0, batch)
     write_json(_index_path(), [batch.__dict__ for batch in batches])

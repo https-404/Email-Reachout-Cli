@@ -11,7 +11,7 @@ from jobreach.app.auth_service import AuthService
 from jobreach.app.generation_service import GenerationService
 from jobreach.app.profile_service import ProfileService, save_profile
 from jobreach.app.profile_service import load_profile
-from jobreach.app.review_service import review_drafts
+from jobreach.app.review_service import interactive_review, review_drafts
 from jobreach.app.send_service import SendService
 from jobreach.config.paths import data_dir, do_not_contact_path, ensure_data_dirs, gmail_token_path
 from jobreach.config.settings import get_default_delay_seconds, get_default_model, get_default_provider, provider_env_status
@@ -242,7 +242,18 @@ def generate(
 @app.command("review")
 def review(drafts: str = typer.Option(..., "--drafts"), debug: bool = typer.Option(False, "--debug")):
     try:
-        review_drafts(load_drafts(drafts))
+        if sys.stdin.isatty() and sys.stdout.isatty():
+            from jobreach.drafts.index import list_batches
+
+            batches = [b for b in list_batches() if b.path == drafts or drafts.endswith(b.id)]
+            batch = batches[0] if batches else None
+            interactive_review(
+                drafts,
+                batch.id if batch else "cli",
+                profile_path=batch.profile_path if batch else None,
+            )
+        else:
+            review_drafts(load_drafts(drafts))
     except Exception as exc:
         _handle_error(exc, debug)
 
@@ -285,6 +296,17 @@ def leads_preview(leads: str = typer.Option(..., "--leads"), limit: int = typer.
     for lead in loaded[:limit]:
         table.add_row(str(lead.email), lead.company or "", lead.recipient_type or "", lead.role or "")
     console.print(table)
+
+
+@app.command("demo")
+def demo(debug: bool = typer.Option(False, "--debug")):
+    try:
+        from jobreach.demo.runner import run_demo_generation
+
+        path = run_demo_generation()
+        console.print(f"[green]Demo batch created:[/green] {path}")
+    except Exception as exc:
+        _handle_error(exc, debug)
 
 
 def main():

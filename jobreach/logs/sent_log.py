@@ -40,3 +40,6 @@ class SentLog:
     def count_sent(self) -> int:
         rows = self._rows()
         return len(rows)
+
+    def read_all(self) -> list[dict[str, str]]:
+        return self._rows()

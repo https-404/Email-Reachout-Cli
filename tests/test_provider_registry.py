@@ -2,7 +2,8 @@ from jobreach.ai.provider_registry import PROVIDERS, get_provider
 
 
 def test_provider_registry_has_all_providers():
-    assert set(PROVIDERS.keys()) == {"openai", "gemini", "anthropic"}
+    assert {"openai", "gemini", "anthropic"}.issubset(set(PROVIDERS.keys()))
+    assert "openrouter" in PROVIDERS
 
 
 def test_provider_registry_fields():

@@ -73,6 +73,7 @@ def run_shell_generation(
         provider=settings.default_provider or "",
         model=generate_model or "",
         campaign_id=campaign_id,
+        profile_path=str(profile_out),
     )
 
     settings_store.update(last_cv_path=cv_path, last_leads_path=leads_path)

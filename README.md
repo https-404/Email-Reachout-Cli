@@ -32,36 +32,32 @@ No `.env` file is required for normal use.
 
 ```text
 help                Show available commands
-status              Show configuration and local stats
+status              Show configuration, batches, and stats
 settings            Open settings menu
-models              Show current provider and model
-change provider     Change AI provider and API key
-change model        Change model for current provider
-generate drafts     Generate outreach drafts from CV and leads
-review drafts       Review and approve drafts
-send emails         Send approved drafts through Gmail
-auth gmail          Connect Gmail
-logout gmail        Disconnect Gmail
+preview leads       Validate and preview a leads CSV
+generate drafts     Generate drafts (remembers last CV/leads paths)
+review drafts       Edit, regenerate, approve; resume where you left off
+send emails         Send, dry-run, or queue across days
+campaigns           List campaigns (SQLite CRM)
+follow up           Create follow-up batch for no-reply contacts
+demo                Try with sample data — no API keys
+auth gmail          Connect Gmail (bundled OAuth)
 exit / quit         Close JobReach
 ```
 
-Aliases: `setup`, `provider`, `model`, `generate`, `drafts`, `review`, `send`, `gmail`
+Full list: type `help` in the shell. See [docs/CAMPAIGNS.md](docs/CAMPAIGNS.md) for CRM, DNC, and scheduling.
 
-Sending requires typing exactly `SEND` to confirm. Only approved drafts are sent.
+Sending requires typing exactly `SEND` to confirm (or `SEND HIGH RISK` for high-risk drafts). Only approved drafts are sent.
 
 ## Gmail OAuth
 
-Create a Google OAuth desktop client with the Gmail send scope, then place the client secret at:
-
-```text
-~/.jobreach/credentials/google_client_secret.json
-```
-
-Inside the shell:
+JobReach **bundles OAuth client credentials** in the package. You only sign in with Google — no Google Cloud Console setup required.
 
 ```text
 JobReach> auth gmail
 ```
+
+Credentials are copied automatically to `~/.jobreach/credentials/` on first use. See [docs/GOOGLE_OAUTH.md](docs/GOOGLE_OAUTH.md) for maintainer verification steps.
 
 You can choose:
 
